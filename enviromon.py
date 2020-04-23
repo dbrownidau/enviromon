@@ -2,8 +2,9 @@
 import time
 import math
 import spidev
-import RPi.GPIO
-from dht11.__init__ import DHT11Result, DHT11 #lol
+import RPi.GPIO as GPIO
+import dht11
+#from dht11.__init__ import DHT11Result, DHT11 #lol
 
 # Enable SPI
 spi = spidev.SpiDev(0,0)
@@ -36,10 +37,28 @@ def XC4494(adc):
     temp = temp - 273.15 # Convert Kelvin to Celcius
     return temp
 
+def init_dht11():
+    # initialize GPIO
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BOARD)
+    return dht11.DHT11(pin = 3)
+
+instance = init_dht11()
+
 while True:
     adc_0 = read_mcp3008(0)
     print("Ch 0:", round(calc_volt(adc_0), 2), "V. Celcius:", XC4494(adc_0))
-    time.sleep(0.5)
+    adc_1 = read_mcp3008(1)
+    print("Ch 1:", round(calc_volt(adc_1), 2), "V. (Soil Moisture)")
+    result = instance.read()
+    if not result.is_valid():
+        result = instance.read()
+    if result.is_valid():
+        print("Temperature: %-3.1f C" % result.temperature)
+        print("Humidity: %-3.1f %%" % result.humidity)
+    else:
+        print("Error: %d" % result.error_code)
+    time.sleep(1.5)
 
 
 
