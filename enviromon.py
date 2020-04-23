@@ -2,6 +2,8 @@
 import time
 import math
 import spidev
+import RPi.GPIO
+from dht11.__init__ import DHT11Result, DHT11 #lol
 
 # Enable SPI
 spi = spidev.SpiDev(0,0)
