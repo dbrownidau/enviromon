@@ -5,7 +5,7 @@ import spidev
 
 # Enable SPI
 spi = spidev.SpiDev(0,0)
-spi.max_speed_hz = 3600000 #3.6Mhz max speed at 5b specified in MCP3008 datasheet.
+spi.max_speed_hz = 3600000 #3.6Mhz max speed at 5v specified in MCP3008 datasheet.
 
 # Thanks scotty101 of raspberrypi.org forums
 # https://www.raspberrypi.org/forums/viewtopic.php?t=199793#p1246000
