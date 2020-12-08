@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from urllib import request
+import json
 import time
 import math
 import spidev
@@ -46,19 +48,26 @@ def init_dht11():
 instance = init_dht11()
 
 while True:
+    datas = {}
     adc_0 = read_mcp3008(0)
-    print("Ch 0:", round(calc_volt(adc_0), 2), "V. Celcius:", XC4494(adc_0))
+    #print("Ch 0:", round(calc_volt(adc_0), 2), "V. Celsius:", XC4494(adc_0))
+    datas["Celsius"] = round(calc_volt(adc_0), 2)
     adc_1 = read_mcp3008(1)
-    print("Ch 1:", round(calc_volt(adc_1), 2), "V. (Soil Moisture)")
-    result = instance.read()
-    if not result.is_valid():
-        result = instance.read()
-    if result.is_valid():
-        print("Temperature: %-3.1f C" % result.temperature)
-        print("Humidity: %-3.1f %%" % result.humidity)
-    else:
-        print("Error: %d" % result.error_code)
-    time.sleep(1.5)
+    #print("Ch 1:", round(calc_volt(adc_1), 2), "V. (Soil Moisture)")
+    datas["Soil Moisture"] = round(calc_volt(adc_1), 2)
+    while True:
+      result = instance.read()
+      if not result.is_valid():
+          continue
+      #print("Temperature: %-3.1f C" % result.temperature)
+      #print("Humidity: %-3.1f %%" % result.humidity)
+      datas["Celsius2"] = result.temperature
+      datas["Humidity"] = result.humidity
+      break
+    print(datas)
+    req = request.Request("http://192.168.1.23:8080/telegraf", data=json.dumps(datas).encode('utf8'), headers={'content-type': 'application/json'})
+    print(request.urlopen(req).getcode())
+    time.sleep(1)
 
 
 
